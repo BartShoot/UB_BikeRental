@@ -548,6 +548,21 @@ progress {
   }
 }
 
+.display-7 {
+    font-size: calc(2rem + 1.5vw);
+    font-weight: 300;
+    line-height: 1.2;
+    font-family:'Comic Sans MS';
+}
+@media (min-width: 1200px) {
+    .display-7 {
+        font-size: 2.5rem;
+        font-weight: 300;
+        line-height: 1.2;
+        font-family: 'Comic Sans MS';
+    }
+}
+
 .list-unstyled {
   padding-left: 0;
   list-style: none;
