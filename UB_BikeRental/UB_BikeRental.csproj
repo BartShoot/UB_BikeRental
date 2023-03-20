@@ -7,13 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Resources\rental1.jpg" />
-    <None Remove="Resources\rental2.jpg" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="Resources\rental1.jpg" />
-    <Resource Include="Resources\rental2.jpg" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="7.0.5" />
   </ItemGroup>
 
 </Project>
