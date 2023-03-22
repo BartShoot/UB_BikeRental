@@ -8,15 +8,15 @@ namespace UB_BikeRental.Controllers
 {
     public class VehicleController : Controller
     {
-        List<Vehicle> model = new List<Vehicle>();
+        List<Vehicle> model = new List<Vehicle>(new Vehicle[]{
+            new Vehicle{ Id = 1, Location = 1, Name = "Rower pierwszy" },
+            new Vehicle{ Id = 2, Location = 1, Name = "Rower drugi" },
+            new Vehicle{ Id = 3, Location = 2, Name = "Rower trzeci" }});
 
         // GET: VehicleController
         [Route("Vehicle/VehicleList")]
         public ActionResult VehicleList()
         {
-            model.Add(new Vehicle { Id = 0, Name = "Rower 1", Location = 1 });
-            model.Add(new Vehicle { Id = 1, Name = "Rower 2", Location = 1 });
-            model.Add(new Vehicle { Id = 2, Name = "Rower 3", Location = 2 });
             return View(model);
         }
 
