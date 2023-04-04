@@ -1,11 +1,15 @@
-﻿namespace UB_BikeRental.Models
+﻿using UB_BikeRental.HelperClasses;
+using UB_BikeRental.Interfaces;
+
+namespace UB_BikeRental.Models
 {
-    public class Reservation
+    public class Reservation : IEntity<Guid>
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string CustomerName { get; set; }
         public DateTime PickUpDate { get; set; }
         public DateTime ReturnDate { get; set; }
+        public ReservationStatus ReservationStatus { get; set; }
         public Vehicle Vehicle { get; set; }
         public decimal TotalCost { get; set; }
     }

@@ -9,9 +9,9 @@ namespace UB_BikeRental.Controllers
     public class VehicleController : Controller
     {
         List<Vehicle> model = new List<Vehicle>(new Vehicle[]{
-            new Vehicle{ Id = 1, Location = 1, Name = "Rower pierwszy" },
-            new Vehicle{ Id = 2, Location = 1, Name = "Rower drugi" },
-            new Vehicle{ Id = 3, Location = 2, Name = "Rower trzeci" }});
+            new Vehicle{ Id = 1, Name = "Rower pierwszy" },
+            new Vehicle{ Id = 2, Name = "Rower drugi" },
+            new Vehicle{ Id = 3, Name = "Rower trzeci" }});
 
         // GET: VehicleController
         [Route("Vehicle/VehicleList")]

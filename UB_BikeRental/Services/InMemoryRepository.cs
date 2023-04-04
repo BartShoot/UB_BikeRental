@@ -20,32 +20,40 @@ namespace UB_BikeRental.Services
         }
         public IQueryable<T> FindBy(Expression<Func<T, bool>> predicate)
         {
-            throw new NotImplementedException();
+            IQueryable<T> query = _set.AsQueryable<T>().Where(predicate);
+
+            return query;
         }
 
         public IQueryable<T> GetAll()
         {
-            throw new NotImplementedException();
+            return _set.AsQueryable<T>();
         }
 
         public T GetById(Guid id)
         {
-            throw new NotImplementedException();
+            var result = _set.FirstOrDefault(r => r.Id == id);
+
+            return result;
         }
 
         public ServiceResult Insert(T obj)
         {
-            throw new NotImplementedException();
+            _set.Add(obj);
+
+            return ServiceResult.CommonResults["OK"];
         }
 
         public ServiceResult Save()
         {
-            throw new NotImplementedException();
+            return ServiceResult.CommonResults["OK"];
         }
 
         public ServiceResult Update(T obj)
         {
-            throw new NotImplementedException();
+            var toUpdate = _set.SingleOrDefault(r => r.Id == obj.Id);
+
+            return ServiceResult.CommonResults["OK"];
         }
     }
 }
