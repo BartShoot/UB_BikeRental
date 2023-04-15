@@ -1,8 +1,10 @@
-﻿namespace UB_BikeRental.Models
+﻿using UB_BikeRental.Interfaces;
+
+namespace UB_BikeRental.Models
 {
-    public class VehicleType
-    {
-        public int Id { get; set; }
-        public string Type { get; set; }
+    public class VehicleType : IEntity<Guid>
+	{
+		public Guid Id { get; set; }
+		public string Type { get; set; }
     }
 }

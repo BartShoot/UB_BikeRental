@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace UB_BikeRental.HelperClasses
 {
@@ -25,9 +27,11 @@ namespace UB_BikeRental.HelperClasses
         [Description("Informacja")]
         Info,
     }
+    [Keyless]
     public class ReservationStatus
     {
         public ReservationResultStatus ReservationResult { get; set; }
+        [NotMapped]
         public ICollection<String> Messages { get; set; }
         public ReservationStatus() 
         { 

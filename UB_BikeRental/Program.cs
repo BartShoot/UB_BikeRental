@@ -1,15 +1,15 @@
-﻿namespace UB_BikeRental
+﻿using Microsoft.EntityFrameworkCore;
+using System;
+using UB_BikeRental.InMemoryDB;
+using UB_BikeRental.Interfaces;
+using UB_BikeRental.Models;
+using UB_BikeRental.Services;
+
+namespace UB_BikeRental
 {
     public class Program
     {
         /*
-        Stwórz Klasy stanowiące model danych dla potrzebnego systemu
-        Zdefiniuj typy określające model danych a docelowo tabele w bazie danych
-        Typ Pojazdu
-        Pojazd,
-        PunktyWypozyczen
-        Rezerwacje (pojazdów)
-
         Jako dane użytkowników będą wykorzystywane tabele uzyskane przez odpowiednie stworzenie DBContextu
         Zdefiniuj DbContext (można wykorzystać wygenerowaną klasę ApliactionDbContext) zawierający odpowiednie tabele. (Wywodząc DbContext od IdentityDbContex można uzyskać obsługę użytkowników).
         Zdefiniuj Serwis Implementujący wzorzec Repository służący do wykonania podstawowych operacji CRUD na wybranej tabeli
@@ -25,15 +25,35 @@
         Zbuduj ViewModele dla Punktów Wypozyczeń i zastosuje je w odpowiednich widokach
         */
         public static void Main(string[] args)
-        {
-            var builder = WebApplication.CreateBuilder(args);
+		{
+			var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-            builder.Services.AddControllersWithViews();
+			builder.Services.AddDbContext<RentalServiceDB>(x => x.UseInMemoryDatabase("Rental"));
+
+			builder.Services.AddScoped<InMemoryRepository<Vehicle>>(sp =>
+			{
+				var dbContext = sp.GetRequiredService<RentalServiceDB>();
+				return new InMemoryRepository<Vehicle>(dbContext);
+			});
+
+			builder.Services.AddScoped<IRepositoryService<Vehicle>, InMemoryRepository<Vehicle>>();
+			builder.Services.AddScoped<InMemoryRepository<RentalPoint>>(sp =>
+			{
+				var dbContext = sp.GetRequiredService<RentalServiceDB>();
+				return new InMemoryRepository<RentalPoint>(dbContext);
+			});
+			builder.Services.AddScoped<IRepositoryService<RentalPoint>, InMemoryRepository<RentalPoint>>();
+
+
+			// Add services to the container.
+			builder.Services.AddControllersWithViews();
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            var dbContext = app.Services.CreateScope()
+                .ServiceProvider.GetRequiredService<RentalServiceDB>();
+            InitialData.Initialize(dbContext);
+
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");

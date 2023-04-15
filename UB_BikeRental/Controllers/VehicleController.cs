@@ -1,30 +1,60 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration.EnvironmentVariables;
 using System.Linq;
 using System.Reflection;
+using UB_BikeRental.InMemoryDB;
+using UB_BikeRental.Interfaces;
 using UB_BikeRental.Models;
+using UB_BikeRental.Services;
+using UB_BikeRental.ViewModel;
 
 namespace UB_BikeRental.Controllers
 {
     public class VehicleController : Controller
     {
-        List<Vehicle> model = new List<Vehicle>(new Vehicle[]{
-            new Vehicle{ Id = 1, Name = "Rower pierwszy" },
-            new Vehicle{ Id = 2, Name = "Rower drugi" },
-            new Vehicle{ Id = 3, Name = "Rower trzeci" }});
+        private readonly InMemoryRepository<Vehicle> _vehicleRepository;
+        private readonly RentalServiceDB _rentalServiceDB;
+        public VehicleController(InMemoryRepository<Vehicle> vehicleRepository, RentalServiceDB rentalServiceDB)
+        {
+            _vehicleRepository = vehicleRepository;
+            _rentalServiceDB = rentalServiceDB;
+        }
 
         // GET: VehicleController
-        [Route("Vehicle/VehicleList")]
-        public ActionResult VehicleList()
+        [HttpGet]
+        public ActionResult Index()
         {
-            return View(model);
+            var vehicles = _vehicleRepository.GetAll().Include(v => v.Type);
+
+            var vehicleViewModels = vehicles.Select(v => new VehicleDetailViewModel
+            {
+                Id = v.Id,
+                Name = v.Name,
+                Price = v.Price,
+                VehicleType = v.Type
+            }).ToList();
+
+            var vehicleItemViewModel = new VehicleItemViewModel
+            {
+                Vehicles = vehicleViewModels
+            };
+            return View(vehicleItemViewModel);
         }
 
         // GET: VehicleController/Details/5
-        public ActionResult Details(int id)
-        { 
-            var det = model[id];
-            return View(det);
+        public ActionResult Details(Guid id)
+        {
+            var vehicle = _vehicleRepository.GetById(id);
+            var vehicleDetailViewModel = new VehicleDetailViewModel
+            {
+                Id = vehicle.Id,
+                Name = vehicle.Name,
+                Price = vehicle.Price,
+                VehicleType = vehicle.Type
+            };
+            return View(vehicleDetailViewModel);
         }
 
         // GET: VehicleController/Create
