@@ -1,33 +1,39 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using System;
 using UB_BikeRental.InMemoryDB;
 using UB_BikeRental.Interfaces;
+using UB_BikeRental.Mappings;
 using UB_BikeRental.Models;
 using UB_BikeRental.Services;
+using UB_BikeRental.Validators;
+using UB_BikeRental.ViewModel;
 
 namespace UB_BikeRental
 {
     public class Program
     {
         /*
-        Zdefiniuj DbContext (można wykorzystać wygenerowaną klasę ApliactionDbContext) zawierający odpowiednie tabele. (Wywodząc DbContext od IdentityDbContex można uzyskać obsługę użytkowników).
-        Zdefiniuj Serwis Implementujący wzorzec Repository służący do wykonania podstawowych operacji CRUD na wybranej tabeli
-        Skonfiguruj aplikację by Kontekst Bazodanowy był połączony z testową baza w Pamięci. (InMemory, options.UseInMemory ....) 
-        Skonfiguruj mechanizm wstrzykiwania dla stworzonego wzorca Repository.
-        Stwórz  Kontroler służący do Wprowadzania Danych Pojazdów (implementujący CRUD). (Można wykorzystać scaffolding.).
-        Kontroler Docelowo powinien wykorzystywać wstrzykiwane repozytorium.
-        Wygeneruj widoki dla akacji w kontrolerze.
-        Stwórz  Kontroler służący do Wprowadzania Punktów Wypożyczeń (implementujący CRUD). (Można wykorzystać scaffolding.).
-        Kontroler Docelowo powinien wykorzystywać wstrzykiwane repozytorium.
-        Wygeneruj widoki dla akacji w kontrolerze.
-        W wyświetlaniu korzystaj z ViewModeli pojazdów zdefiniowanych w ramach Laboratorium 01. (Jeśli trzeba - rozbuduj View Modele o rzeczy związane z typem).
-        Zbuduj ViewModele dla Punktów Wypozyczeń i zastosuje je w odpowiednich widokach
+
+        W Kontrolerach zmodyfikuj kod by wykorzystywać Automapper do przesyłania danych do i z Widoków.
+
+        Zmodyfikuj ViewModele o parametry Walidujące
+
+        Uruchomić i zweryfikować działanie walidacji po stronie klienta i serwera
+
+        Stosując FluentValidation lub Własny Walidator zabezpieczyć datę Rezerwacji tak by Data Początkowa nie mogła być większa od Daty zakończenia rezerwacji
         */
         public static void Main(string[] args)
 		{
 			var builder = WebApplication.CreateBuilder(args);
 
-			builder.Services.AddDbContext<RentalServiceDB>(x => x.UseInMemoryDatabase("Rental"));
+            builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+            builder.Services.AddScoped<IValidator<VehicleDetailsViewModel>, VehicleDetailsViewModelValidator>();
+            builder.Services.AddScoped<IValidator<RentalPointDetailsViewModel>, RentalPointDetailsViewModelValidator>();
+            builder.Services.AddScoped<IValidator<ReservationsDetailsViewModel>, ReservationDetailsViewModelValidator>();
+
+            builder.Services.AddDbContext<RentalServiceDB>(x => x.UseInMemoryDatabase("Rental"));
 
 			builder.Services.AddScoped<InMemoryRepository<Vehicle>>(sp =>
 			{

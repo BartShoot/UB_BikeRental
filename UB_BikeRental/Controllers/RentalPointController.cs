@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using UB_BikeRental.InMemoryDB;
 using UB_BikeRental.Models;
 using UB_BikeRental.Services;
+using UB_BikeRental.Validators;
 using UB_BikeRental.ViewModel;
 
 namespace UB_BikeRental.Controllers
@@ -11,11 +13,15 @@ namespace UB_BikeRental.Controllers
     {
         private readonly InMemoryRepository<RentalPoint> _rentalPointRepository;
         private readonly RentalServiceDB _rentalServiceDB;
-        public RentalPointController(InMemoryRepository<RentalPoint> rentalPointRepository, RentalServiceDB rentalServiceDB)
+        private readonly IMapper _mapper;
+        public RentalPointController(InMemoryRepository<RentalPoint> rentalPointRepository, 
+            RentalServiceDB rentalServiceDB, IMapper mapper)
         {
             _rentalPointRepository = rentalPointRepository;
             _rentalServiceDB = rentalServiceDB;
+            _mapper = mapper;
         }
+
         // GET: RentalPointController
         public ActionResult Index()
         {
@@ -26,13 +32,8 @@ namespace UB_BikeRental.Controllers
 
             foreach (var item in rentalsPoints)
             {
-                var tmp = new RentalPointItemViewModel();
-
-                tmp.Id = item.Id;
-                tmp.Name = item.Name;
-                tmp.Location = item.Address;
-
-                RentalPointList.Add(tmp);
+                RentalPointList.Add(_mapper
+                    .Map<RentalPointItemViewModel>(item));
             }
             return View(RentalPointList);
         }
@@ -40,25 +41,17 @@ namespace UB_BikeRental.Controllers
         // GET: RentalPointController/Details/5
         public ActionResult Details(Guid id)
         {
-            var rentalPoint = _rentalPointRepository.GetById(id);
-            var rentalPointDetailViewModel = new RentalPointDetailsViewModel
-            {
-                Id = rentalPoint.Id,
-                Name = rentalPoint.Name,
-                Address = rentalPoint.Address,
-                Vehicles = rentalPoint.Vehicles,
-            };
+            var rentalPointVM = _mapper
+                .Map<RentalPointDetailsViewModel>(_rentalPointRepository.GetById(id));
 
-            return View(rentalPointDetailViewModel);
+            return View(rentalPointVM);
         }
 
         // GET: RentalPointController/Create
         public ActionResult Create()
         {
-            var rentalPointDetailVM = new RentalPointDetailsViewModel
-            {
-                Id = Guid.NewGuid(),
-            };
+
+            var rentalPointDetailVM = new RentalPointDetailsViewModel { Id = Guid.NewGuid() };
             return View(rentalPointDetailVM);
         }
 
@@ -67,31 +60,44 @@ namespace UB_BikeRental.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(RentalPointDetailsViewModel rentalPointDetailVM)
         {
-            var rentalPoint = new RentalPoint
+            var validator = new RentalPointDetailsViewModelValidator();
+            var validationResult = validator.Validate(rentalPointDetailVM);
+
+            if (validationResult.IsValid)
             {
-                Id = rentalPointDetailVM.Id,
-                Name = rentalPointDetailVM.Name,
-                Address = rentalPointDetailVM.Address,
-                Vehicles = rentalPointDetailVM.Vehicles
-            };
-            _rentalPointRepository.Insert(rentalPoint);
-            return RedirectToAction("Index");
+                var rentalPoint = _mapper.Map<RentalPoint>(rentalPointDetailVM);
+                _rentalPointRepository.Insert(rentalPoint);
+                return RedirectToAction("Index");
+            }
+            validationResult.Errors.ForEach(e => ModelState.AddModelError(e.PropertyName, e.ErrorMessage));
+            return View(rentalPointDetailVM);
         }
 
         // GET: RentalPointController/Edit/5
         public ActionResult Edit(Guid id)
         {
-            var rentalPoint = _rentalPointRepository.GetById(id);
-            return View(rentalPoint);
+            var rentalPointVM = _mapper
+                .Map<RentalPointDetailsViewModel>(_rentalPointRepository.GetById(id));
+            return View(rentalPointVM);
         }
 
         // POST: RentalPointController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(RentalPoint rentalPoint)
+        public ActionResult Edit(RentalPointDetailsViewModel rentalPointVM)
         {
-            _rentalPointRepository.Update(rentalPoint);
-            return RedirectToAction("Index");
+            var validator = new RentalPointDetailsViewModelValidator();
+            var validationResult = validator.Validate(rentalPointVM);
+
+            if (validationResult.IsValid)
+            {
+                var rentalPoint = _mapper.Map<RentalPoint>(rentalPointVM);
+                _rentalPointRepository.Update(rentalPoint);
+                return RedirectToAction("Index");
+            }
+            validationResult.Errors
+                .ForEach(e => ModelState.AddModelError(e.PropertyName, e.ErrorMessage));
+            return View(rentalPointVM);
         }
 
         // GET: RentalPointController/Delete/5

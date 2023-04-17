@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using FluentValidation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +11,7 @@ using UB_BikeRental.InMemoryDB;
 using UB_BikeRental.Interfaces;
 using UB_BikeRental.Models;
 using UB_BikeRental.Services;
+using UB_BikeRental.Validators;
 using UB_BikeRental.ViewModel;
 
 namespace UB_BikeRental.Controllers
@@ -17,29 +20,27 @@ namespace UB_BikeRental.Controllers
     {
         private readonly InMemoryRepository<Vehicle> _vehicleRepository;
         private readonly RentalServiceDB _rentalServiceDB;
-        public VehicleController(InMemoryRepository<Vehicle> vehicleRepository, RentalServiceDB rentalServiceDB)
+        private readonly IMapper _mapper;
+        public VehicleController(InMemoryRepository<Vehicle> vehicleRepository, 
+            RentalServiceDB rentalServiceDB, IMapper mapper)
         {
             _vehicleRepository = vehicleRepository;
             _rentalServiceDB = rentalServiceDB;
+            _mapper = mapper;
         }
 
         // GET: VehicleController
         [HttpGet]
         public ActionResult Index()
         {
-            var vehicles = _vehicleRepository.GetAll();
+            var vehicles = _vehicleRepository.GetAll().Include(x => x.Type);
 
             List<VehicleItemViewModel> VehicleList = new List<VehicleItemViewModel>();
 
             foreach (var item in vehicles)
             {
-                var tmp = new VehicleItemViewModel();
-
-                tmp.Id = item.Id;
-                tmp.Name = item.Name;
-                tmp.Price = item.Price;
-
-                VehicleList.Add(tmp);
+                VehicleList.Add(_mapper
+                    .Map<VehicleItemViewModel>(item));
             }
 
             return View(VehicleList);
@@ -48,58 +49,62 @@ namespace UB_BikeRental.Controllers
         // GET: VehicleController/Details/5
         public ActionResult Details(Guid id)
         {
-            var vehicle = _vehicleRepository.GetById(id);
-            var vehicleDetailViewModel = new VehicleDetailsViewModel
-            {
-                Id = vehicle.Id,
-                Name = vehicle.Name,
-                Price = vehicle.Price,
-                VehicleType = vehicle.Type
-            };
+            var vehicleDetailViewModel = _mapper
+                .Map<VehicleDetailsViewModel>(_vehicleRepository.GetById(id));
+
             return View(vehicleDetailViewModel);
         }
 
         // GET: VehicleController/Create
-        [HttpGet]
         public ActionResult Create()
         {
-            var vehicleDetailVM = new VehicleDetailsViewModel
-            {
-                Id = Guid.NewGuid(),
-                VehicleType = _rentalServiceDB.VehicleTypes.First()
-            };
+            var vehicleDetailVM = new VehicleDetailsViewModel { Id = Guid.NewGuid() };
             return View(vehicleDetailVM);
         }
 
         // POST: VehicleController/Create
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Create(VehicleDetailsViewModel vehicleDetailVM)
         {
-            var vehicle = new Vehicle
+            var validator = new VehicleDetailsViewModelValidator();
+            var validationResult = validator.Validate(vehicleDetailVM);
+
+            if (validationResult.IsValid)
             {
-                Id = vehicleDetailVM.Id,
-                Name = vehicleDetailVM.Name,
-                Price = vehicleDetailVM.Price,
-                Type = vehicleDetailVM.VehicleType
-            };
-            _vehicleRepository.Insert(vehicle);
-            return RedirectToAction("Index");
+                var vehicle = _mapper.Map<Vehicle>(vehicleDetailVM);
+                _vehicleRepository.Insert(vehicle);
+                return RedirectToAction("Index");
+            }
+            validationResult.Errors.ForEach(e => ModelState.AddModelError(e.PropertyName, e.ErrorMessage));
+            return View(vehicleDetailVM);
         }
 
         // GET: VehicleController/Edit/5
         [HttpGet]
         public ActionResult Edit(Guid id)
         {
-            var vehicle = _vehicleRepository.GetById(id);
-            return View(vehicle);
+            var vehicleDetailVM = _mapper
+                .Map<VehicleDetailsViewModel>(_vehicleRepository.GetById(id));
+            return View(vehicleDetailVM);
         }
 
         // POST: VehicleController/Edit/5
         [HttpPost]
-        public ActionResult Edit(Vehicle vehicle)
+        public ActionResult Edit(VehicleDetailsViewModel vehicleVM)
         {
-            _vehicleRepository.Update(vehicle);
-            return RedirectToAction("Index");
+            var validator = new VehicleDetailsViewModelValidator();
+            var validationResult = validator.Validate(vehicleVM);
+
+            if (validationResult.IsValid)
+            {
+                var vehicle = _mapper.Map<Vehicle>(vehicleVM);
+                _vehicleRepository.Insert(vehicle);
+                return RedirectToAction("Index");
+            }
+            validationResult.Errors
+                .ForEach(e => ModelState.AddModelError(e.PropertyName, e.ErrorMessage));
+            return View(vehicleVM);
         }
 
         // GET: VehicleController/Delete/5
