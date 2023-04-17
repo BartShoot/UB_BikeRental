@@ -15,6 +15,7 @@ namespace UB_BikeRental.Services
         public virtual ServiceResult Delete(T obj)
         {
             _rentalServiceDB.Set<T>().Remove(obj);
+            _rentalServiceDB.SaveChanges();
 
 			return ServiceResult.CommonResults["OK"];
         }
@@ -40,6 +41,7 @@ namespace UB_BikeRental.Services
         public ServiceResult Insert(T obj)
         {
 			_rentalServiceDB.Set<T>().Add(obj);
+            _rentalServiceDB.SaveChanges();
 
             return ServiceResult.CommonResults["OK"];
         }
@@ -51,7 +53,8 @@ namespace UB_BikeRental.Services
 
         public ServiceResult Update(T obj)
         {
-            var toUpdate = _rentalServiceDB.Set<T>().SingleOrDefault(r => r.Id == obj.Id);
+            var toUpdate = _rentalServiceDB.Set<T>().Update(obj);
+            _rentalServiceDB.SaveChanges();
 
             return ServiceResult.CommonResults["OK"];
         }

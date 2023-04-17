@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration.EnvironmentVariables;
 using System.Linq;
@@ -26,28 +27,29 @@ namespace UB_BikeRental.Controllers
         [HttpGet]
         public ActionResult Index()
         {
-            var vehicles = _vehicleRepository.GetAll().Include(v => v.Type);
+            var vehicles = _vehicleRepository.GetAll();
 
-            var vehicleViewModels = vehicles.Select(v => new VehicleDetailViewModel
-            {
-                Id = v.Id,
-                Name = v.Name,
-                Price = v.Price,
-                VehicleType = v.Type
-            }).ToList();
+            List<VehicleItemViewModel> VehicleList = new List<VehicleItemViewModel>();
 
-            var vehicleItemViewModel = new VehicleItemViewModel
+            foreach (var item in vehicles)
             {
-                Vehicles = vehicleViewModels
-            };
-            return View(vehicleItemViewModel);
+                var tmp = new VehicleItemViewModel();
+
+                tmp.Id = item.Id;
+                tmp.Name = item.Name;
+                tmp.Price = item.Price;
+
+                VehicleList.Add(tmp);
+            }
+
+            return View(VehicleList);
         }
 
         // GET: VehicleController/Details/5
         public ActionResult Details(Guid id)
         {
             var vehicle = _vehicleRepository.GetById(id);
-            var vehicleDetailViewModel = new VehicleDetailViewModel
+            var vehicleDetailViewModel = new VehicleDetailsViewModel
             {
                 Id = vehicle.Id,
                 Name = vehicle.Name,
@@ -58,66 +60,63 @@ namespace UB_BikeRental.Controllers
         }
 
         // GET: VehicleController/Create
+        [HttpGet]
         public ActionResult Create()
         {
-            return View();
+            var vehicleDetailVM = new VehicleDetailsViewModel
+            {
+                Id = Guid.NewGuid(),
+                VehicleType = _rentalServiceDB.VehicleTypes.First()
+            };
+            return View(vehicleDetailVM);
         }
 
         // POST: VehicleController/Create
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult Create(VehicleDetailsViewModel vehicleDetailVM)
         {
-            try
+            var vehicle = new Vehicle
             {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+                Id = vehicleDetailVM.Id,
+                Name = vehicleDetailVM.Name,
+                Price = vehicleDetailVM.Price,
+                Type = vehicleDetailVM.VehicleType
+            };
+            _vehicleRepository.Insert(vehicle);
+            return RedirectToAction("Index");
         }
 
         // GET: VehicleController/Edit/5
-        public ActionResult Edit(int id)
+        [HttpGet]
+        public ActionResult Edit(Guid id)
         {
-            return View();
+            var vehicle = _vehicleRepository.GetById(id);
+            return View(vehicle);
         }
 
         // POST: VehicleController/Edit/5
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public ActionResult Edit(Vehicle vehicle)
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            _vehicleRepository.Update(vehicle);
+            return RedirectToAction("Index");
         }
 
         // GET: VehicleController/Delete/5
-        public ActionResult Delete(int id)
+        public ActionResult Delete(Guid id)
         {
-            return View();
+            var vehicle = _vehicleRepository.GetById(id);
+            
+            return View(vehicle);
         }
 
         // POST: VehicleController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public ActionResult Delete(Vehicle vehicle)
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            _vehicleRepository.Delete(vehicle);
+            return RedirectToAction("Index");
         }
     }
 }

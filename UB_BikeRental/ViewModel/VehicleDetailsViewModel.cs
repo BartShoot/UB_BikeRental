@@ -1,8 +1,10 @@
-﻿using UB_BikeRental.Models;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using UB_BikeRental.Models;
 
 namespace UB_BikeRental.ViewModel
 {
-    public class VehicleDetailViewModel
+    public class VehicleDetailsViewModel
     {
         public Guid Id { get; set; }
         public string Name { get; set; }

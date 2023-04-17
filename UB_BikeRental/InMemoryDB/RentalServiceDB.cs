@@ -15,6 +15,8 @@ namespace UB_BikeRental.InMemoryDB
 		public DbSet<RentalPoint> RentalPoints { get; set; }
 		public DbSet<VehicleType> VehicleTypes { get; set; }
 		public DbSet<UB_BikeRental.ViewModel.VehicleItemViewModel> VehicleItemViewModel { get; set; } = default!;
-		public DbSet<UB_BikeRental.ViewModel.VehicleDetailViewModel> VehicleDetailViewModel { get; set; } = default!;
+		public DbSet<UB_BikeRental.ViewModel.VehicleDetailsViewModel> VehicleDetailViewModel { get; set; } = default!;
+		public DbSet<UB_BikeRental.ViewModel.RentalPointItemViewModel> RentalPointItemViewModel { get; set; } = default!;
+		public DbSet<UB_BikeRental.ViewModel.RentalPointDetailsViewModel> RentalPointDetailsViewModel { get; set; } = default!;
 	}
 }

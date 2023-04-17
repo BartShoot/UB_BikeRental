@@ -10,7 +10,6 @@ namespace UB_BikeRental
     public class Program
     {
         /*
-        Jako dane użytkowników będą wykorzystywane tabele uzyskane przez odpowiednie stworzenie DBContextu
         Zdefiniuj DbContext (można wykorzystać wygenerowaną klasę ApliactionDbContext) zawierający odpowiednie tabele. (Wywodząc DbContext od IdentityDbContex można uzyskać obsługę użytkowników).
         Zdefiniuj Serwis Implementujący wzorzec Repository służący do wykonania podstawowych operacji CRUD na wybranej tabeli
         Skonfiguruj aplikację by Kontekst Bazodanowy był połączony z testową baza w Pamięci. (InMemory, options.UseInMemory ....) 
@@ -49,11 +48,11 @@ namespace UB_BikeRental
 			builder.Services.AddControllersWithViews();
 
             var app = builder.Build();
-
+            
             var dbContext = app.Services.CreateScope()
                 .ServiceProvider.GetRequiredService<RentalServiceDB>();
             InitialData.Initialize(dbContext);
-
+            
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");

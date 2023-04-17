@@ -6,7 +6,8 @@ namespace UB_BikeRental.ViewModel
     public class VehicleItemViewModel
     {
         [Key]
-        public int Id { get; set; }
-        public List<VehicleDetailViewModel> Vehicles { get; set; }
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public double Price { get; set; }
     }
 }
