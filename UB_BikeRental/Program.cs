@@ -73,6 +73,7 @@ namespace UB_BikeRental
             
             app.UseAuthentication();
             app.UseAuthorization();
+
             app.UseEndpoints(endpoints =>
             {
                 // ...
