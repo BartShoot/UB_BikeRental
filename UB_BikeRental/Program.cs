@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+using FluentValidation;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using UB_BikeRental.InMemoryDB;
@@ -26,6 +27,10 @@ namespace UB_BikeRental
         public static void Main(string[] args)
 		{
 			var builder = WebApplication.CreateBuilder(args);
+            //var connectionString = builder.Configuration.GetConnectionString("RentalServiceDBConnection") ?? throw new InvalidOperationException("Connection string 'RentalServiceDBConnection' not found.");
+
+            builder.Services.AddDbContext<RentalServiceDB>(x => x.UseInMemoryDatabase("Rental"));
+
 
             builder.Services.AddAutoMapper(typeof(MappingProfile));
 
@@ -33,7 +38,6 @@ namespace UB_BikeRental
             builder.Services.AddScoped<IValidator<RentalPointDetailsViewModel>, RentalPointDetailsViewModelValidator>();
             builder.Services.AddScoped<IValidator<ReservationsDetailsViewModel>, ReservationDetailsViewModelValidator>();
 
-            builder.Services.AddDbContext<RentalServiceDB>(x => x.UseInMemoryDatabase("Rental"));
 
 			builder.Services.AddScoped<InMemoryRepository<Vehicle>>(sp =>
 			{
@@ -49,9 +53,13 @@ namespace UB_BikeRental
 			});
 			builder.Services.AddScoped<IRepositoryService<RentalPoint>, InMemoryRepository<RentalPoint>>();
 
+            builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+                .AddEntityFrameworkStores<RentalServiceDB>();
 
-			// Add services to the container.
-			builder.Services.AddControllersWithViews();
+
+
+            // Add services to the container.
+            builder.Services.AddControllersWithViews();
 
             var app = builder.Build();
             
@@ -71,6 +79,7 @@ namespace UB_BikeRental
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllerRoute(

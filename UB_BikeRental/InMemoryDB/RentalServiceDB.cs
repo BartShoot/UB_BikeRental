@@ -1,12 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using UB_BikeRental.Models;
 using UB_BikeRental.ViewModel;
 
 namespace UB_BikeRental.InMemoryDB
 {
-	public class RentalServiceDB : DbContext
-	{
-		public RentalServiceDB(DbContextOptions<RentalServiceDB> options) : base(options)
+	public class RentalServiceDB : IdentityDbContext<IdentityUser, IdentityRole, string>
+    {
+        public RentalServiceDB(DbContextOptions<RentalServiceDB> options) : base(options)
 		{ 
 
 		}
