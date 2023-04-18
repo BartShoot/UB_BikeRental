@@ -15,24 +15,19 @@ namespace UB_BikeRental
     public class Program
     {
         /*
-
-        W Kontrolerach zmodyfikuj kod by wykorzystywać Automapper do przesyłania danych do i z Widoków.
-
-        Zmodyfikuj ViewModele o parametry Walidujące
-
-        Uruchomić i zweryfikować działanie walidacji po stronie klienta i serwera
-
-        Stosując FluentValidation lub Własny Walidator zabezpieczyć datę Rezerwacji tak by Data Początkowa nie mogła być większa od Daty zakończenia rezerwacji
         */
         public static void Main(string[] args)
 		{
 			var builder = WebApplication.CreateBuilder(args);
-            //var connectionString = builder.Configuration.GetConnectionString("RentalServiceDBConnection") ?? throw new InvalidOperationException("Connection string 'RentalServiceDBConnection' not found.");
-
+   
             builder.Services.AddDbContext<RentalServiceDB>(x => x.UseInMemoryDatabase("Rental"));
 
-
-            builder.Services.AddAutoMapper(typeof(MappingProfile));
+            builder.Services.AddDefaultIdentity<IdentityUser>()
+                .AddEntityFrameworkStores<RentalServiceDB>()
+                .AddDefaultUI()
+                .AddDefaultTokenProviders();
+            
+                builder.Services.AddAutoMapper(typeof(MappingProfile));
 
             builder.Services.AddScoped<IValidator<VehicleDetailsViewModel>, VehicleDetailsViewModelValidator>();
             builder.Services.AddScoped<IValidator<RentalPointDetailsViewModel>, RentalPointDetailsViewModelValidator>();
@@ -53,16 +48,13 @@ namespace UB_BikeRental
 			});
 			builder.Services.AddScoped<IRepositoryService<RentalPoint>, InMemoryRepository<RentalPoint>>();
 
-            builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<RentalServiceDB>();
-
-
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
             var app = builder.Build();
-            
+
+
             var dbContext = app.Services.CreateScope()
                 .ServiceProvider.GetRequiredService<RentalServiceDB>();
             InitialData.Initialize(dbContext);
@@ -78,9 +70,14 @@ namespace UB_BikeRental
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseEndpoints(endpoints =>
+            {
+                // ...
+                endpoints.MapRazorPages();
+            });
 
             app.MapControllerRoute(
                 name: "default",

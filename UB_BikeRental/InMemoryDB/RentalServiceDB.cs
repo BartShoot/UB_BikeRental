@@ -6,7 +6,7 @@ using UB_BikeRental.ViewModel;
 
 namespace UB_BikeRental.InMemoryDB
 {
-	public class RentalServiceDB : IdentityDbContext<IdentityUser, IdentityRole, string>
+	public class RentalServiceDB : IdentityDbContext
     {
         public RentalServiceDB(DbContextOptions<RentalServiceDB> options) : base(options)
 		{ 
