@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.ObjectPool;
 using System;
 using UB_BikeRental.InMemoryDB;
 using UB_BikeRental.Interfaces;
@@ -14,20 +15,19 @@ namespace UB_BikeRental
 {
     public class Program
     {
-        /*
-        */
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
 		{
 			var builder = WebApplication.CreateBuilder(args);
    
             builder.Services.AddDbContext<RentalServiceDB>(x => x.UseInMemoryDatabase("Rental"));
 
             builder.Services.AddDefaultIdentity<IdentityUser>()
+                .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<RentalServiceDB>()
                 .AddDefaultUI()
                 .AddDefaultTokenProviders();
             
-                builder.Services.AddAutoMapper(typeof(MappingProfile));
+            builder.Services.AddAutoMapper(typeof(MappingProfile));
 
             builder.Services.AddScoped<IValidator<VehicleDetailsViewModel>, VehicleDetailsViewModelValidator>();
             builder.Services.AddScoped<IValidator<RentalPointDetailsViewModel>, RentalPointDetailsViewModelValidator>();
@@ -74,15 +74,48 @@ namespace UB_BikeRental
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints =>
-            {
-                // ...
-                endpoints.MapRazorPages();
-            });
+            app.MapControllerRoute(
+                  name: "Areas",
+                  pattern: "{area:exists}/{controller}/{action}");
 
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
+
+            app.MapRazorPages();
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                var roles = new string[] { "Administrator", "User", "Operator" };
+                
+                foreach (var role in roles)
+                {
+                    if(!await roleManager.RoleExistsAsync(role))
+                        await roleManager.CreateAsync(new IdentityRole(role));
+                }
+            }
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+
+                string mail = "admin@admin.admin";
+                string password = "@dmin4DMIN";
+
+                if (await userManager.FindByEmailAsync(mail) == null)
+                {
+                    var user = new IdentityUser
+                    {
+                        UserName = mail,
+                        Email = mail,
+                        EmailConfirmed = true
+                    };
+
+                    await userManager.CreateAsync(user, password);
+                    await userManager.AddToRoleAsync(user, "Administrator");
+                }
+            }
 
             app.Run();
         }
