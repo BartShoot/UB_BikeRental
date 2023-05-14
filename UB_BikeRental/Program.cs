@@ -115,6 +115,18 @@ namespace UB_BikeRental
                     await userManager.CreateAsync(user, password);
                     await userManager.AddToRoleAsync(user, "Administrator");
                 }
+                password = "a!A123456";
+                for (int i = 0; i < 5; i++)
+                {
+                    var user = new IdentityUser
+                    {
+                        UserName = $"user{i}",
+                        Email = $"user{i}@user.com",
+                        EmailConfirmed = true
+                    };
+                    await userManager.CreateAsync(user, password);
+                    await userManager.AddToRoleAsync(user, "User");
+                }
             }
 
             app.Run();

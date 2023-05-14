@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
+using UB_BikeRental.Areas.Admin.Models;
 using UB_BikeRental.Models;
 using UB_BikeRental.ViewModel;
 
@@ -15,6 +17,7 @@ namespace UB_BikeRental.Mappings
             CreateMap<RentalPoint, RentalPointItemViewModel>().ReverseMap();
 
             CreateMap<Reservation, ReservationsDetailsViewModel>().ReverseMap();
+            CreateMap<IdentityUser, UserViewModel>().ReverseMap();
         }
     }
 }
