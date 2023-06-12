@@ -16,7 +16,7 @@ namespace UB_BikeRental.Mappings
             CreateMap<RentalPoint, RentalPointDetailsViewModel>().ReverseMap();
             CreateMap<RentalPoint, RentalPointItemViewModel>().ReverseMap();
 
-            CreateMap<Reservation, ReservationsDetailsViewModel>().ReverseMap();
+            CreateMap<Reservation, ReservationDetailsViewModel>().ReverseMap();
             CreateMap<IdentityUser, UserViewModel>().ReverseMap();
         }
     }

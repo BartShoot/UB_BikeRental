@@ -3,7 +3,7 @@ using UB_BikeRental.ViewModel;
 
 namespace UB_BikeRental.Validators
 {
-    internal class ReservationDetailsViewModelValidator : AbstractValidator<ReservationsDetailsViewModel>
+    internal class ReservationDetailsViewModelValidator : AbstractValidator<ReservationDetailsViewModel>
     {
         public ReservationDetailsViewModelValidator()
         {

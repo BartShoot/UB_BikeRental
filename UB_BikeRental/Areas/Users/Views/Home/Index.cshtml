@@ -1,15 +1,18 @@
 ﻿@model IEnumerable<UB_BikeRental.ViewModel.RentalPointItemViewModel>
-
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Rezerwuj";
 }
 
-<h1>Index</h1>
+<head>
+    <link href="~/sbadmin/css/sb-admin-2.min.css" rel="stylesheet">
+</head>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
+<a href="/Home/Index" class="m-4">Powrót</a>
+
+<h1 class ="m-4">Wybierz punkt rezerwacji</h1>
+
+<table class="table col-xl-3 col-md-6 m-4">
     <thead>
         <tr>
             <th>
@@ -28,12 +31,10 @@
                 @Html.DisplayFor(modelItem => item.Name)
             </td>
             <td>
-                    @Html.DisplayFor(modelItem => item.Address)
+                @Html.DisplayFor(modelItem => item.Address)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                <a asp-action="MakeReservation" asp-route-id="@item.Id">Rezerwuj</a>
             </td>
         </tr>
 }

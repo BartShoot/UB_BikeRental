@@ -31,7 +31,7 @@ namespace UB_BikeRental
 
             builder.Services.AddScoped<IValidator<VehicleDetailsViewModel>, VehicleDetailsViewModelValidator>();
             builder.Services.AddScoped<IValidator<RentalPointDetailsViewModel>, RentalPointDetailsViewModelValidator>();
-            builder.Services.AddScoped<IValidator<ReservationsDetailsViewModel>, ReservationDetailsViewModelValidator>();
+            builder.Services.AddScoped<IValidator<ReservationDetailsViewModel>, ReservationDetailsViewModelValidator>();
 
 
 			builder.Services.AddScoped<InMemoryRepository<Vehicle>>(sp =>
@@ -39,8 +39,8 @@ namespace UB_BikeRental
 				var dbContext = sp.GetRequiredService<RentalServiceDB>();
 				return new InMemoryRepository<Vehicle>(dbContext);
 			});
-
 			builder.Services.AddScoped<IRepositoryService<Vehicle>, InMemoryRepository<Vehicle>>();
+
 			builder.Services.AddScoped<InMemoryRepository<RentalPoint>>(sp =>
 			{
 				var dbContext = sp.GetRequiredService<RentalServiceDB>();
@@ -48,6 +48,12 @@ namespace UB_BikeRental
 			});
 			builder.Services.AddScoped<IRepositoryService<RentalPoint>, InMemoryRepository<RentalPoint>>();
 
+            builder.Services.AddScoped<InMemoryRepository<Reservation>>(sp =>
+            {
+                var dbContext = sp.GetRequiredService<RentalServiceDB>();
+                return new InMemoryRepository<Reservation>(dbContext);
+            });
+            builder.Services.AddScoped<IRepositoryService<Reservation>, InMemoryRepository<Reservation>>();
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();

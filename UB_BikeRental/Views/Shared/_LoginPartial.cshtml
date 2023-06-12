@@ -12,6 +12,12 @@
             <a class="nav-link text-dark" asp-area="Admin" asp-controller="Home" asp-action="Index">Panel administratora</a>
         </li>
     }
+    @if (User.Identity.IsAuthenticated)
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="Users" asp-controller="Home" asp-action="Index">Rezerwacja</a>
+        </li>
+    }
     <li class="nav-item">
         <a id="manage" class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @UserManager.GetUserName(User)!</a>
     </li>

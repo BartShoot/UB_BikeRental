@@ -31,17 +31,32 @@ namespace UB_BikeRental.Areas.Admin.Controllers
             List<UserViewModel> UserList = new List<UserViewModel>();
             foreach (var item in userList)
             {
-                UserList.Add(_mapper
-                    .Map<UserViewModel>(item));
-                UserList[UserList.Count - 1].Role = (await _userManager.GetRolesAsync(item)).LastOrDefault();
+                UserList.Add(_mapper.Map<UserViewModel>(item));
+                UserList[UserList.Count - 1].Role = 
+                    (await _userManager.GetRolesAsync(item)).LastOrDefault();
             }
             return View(UserList);
+        }
+        public async Task<IActionResult> ReservationListAsync()
+        {
+            var reservationList = _context.Reservations.ToList();
+            List<ReservationDetailsViewModel> ReservationList = new List<ReservationDetailsViewModel>();
+            foreach (var item in reservationList)
+            {
+                ReservationList.Add(_mapper.Map<ReservationDetailsViewModel>(item));
+            }
+            return View(ReservationList);
+        }
+
+        public IActionResult ConfirmReservation(Guid id)
+        {
+            return View();
         }
 
         [HttpPost]
         public async Task<IActionResult> SetOperatorRole(Guid userId)
         {
-            var user = await _userManager.FindByIdAsync(userId.ToString());
+			var user = await _userManager.FindByIdAsync(userId.ToString());
             if (user == null)
             {
                 return RedirectToAction("Index");
