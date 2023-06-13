@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using UB_BikeRental.Areas.Admin.Models;
 using UB_BikeRental.InMemoryDB;
 using UB_BikeRental.Models;
+using UB_BikeRental.Services;
 using UB_BikeRental.ViewModel;
 
 namespace UB_BikeRental.Areas.Admin.Controllers
@@ -15,11 +16,13 @@ namespace UB_BikeRental.Areas.Admin.Controllers
     public class HomeController : Controller
     {
         RentalServiceDB _context;
+        private readonly InMemoryRepository<Reservation> _reservationRepository;
         IMapper _mapper;
         UserManager<IdentityUser> _userManager;
 
-        public HomeController (RentalServiceDB context, IMapper mapper, UserManager<IdentityUser> userManager)
+        public HomeController (RentalServiceDB context, IMapper mapper, UserManager<IdentityUser> userManager, InMemoryRepository<Reservation> reservationRepository)
         {
+            _reservationRepository = reservationRepository;
             _context = context;
             _mapper = mapper;
             _userManager = userManager;
@@ -50,7 +53,16 @@ namespace UB_BikeRental.Areas.Admin.Controllers
 
         public IActionResult ConfirmReservation(Guid id)
         {
-            return View();
+            var reservationVM = _mapper.Map<ReservationDetailsViewModel>(_reservationRepository.GetById(id));
+            return View(reservationVM);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ConfirmReservation(ReservationDetailsViewModel reservation)
+        {
+            _reservationRepository.Delete(_reservationRepository.GetById(reservation.Id));
+            return RedirectToAction("ReservationList");
         }
 
         [HttpPost]
