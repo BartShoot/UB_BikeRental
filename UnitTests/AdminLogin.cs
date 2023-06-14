@@ -26,6 +26,7 @@ namespace UnitTests
             _driver.FindElement(By.Id("Input_Password")).SendKeys("@dmin4DMIN");
             _driver.FindElement(By.Id("login-submit")).Click();
             Assert.Equal("https://localhost:7255/", _driver.Url);
+            Assert.Equal()
         }
 
         [Fact]
